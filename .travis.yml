@@ -1,6 +1,10 @@
 language: python
 python:
-  - "3.5"
-install: "pip install -r requirements.txt"
+  - "2.7"
+install: 
+  - "pip install -r requirements.txt"
+  - "pip install tinycss2"
+  - "wget https://raw.githubusercontent.com/reddit/reddit/master/r2/r2/lib/cssfilter.py"
+  - "wget https://raw.githubusercontent.com/reddit/reddit/master/r2/r2/lib/contrib/rcssmin.py"
 # command to run tests
-script: echo uploading
+script: "python ./validatecss.py"
