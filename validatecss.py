@@ -1,3 +1,4 @@
+from __future__ import print_function
 #### BEGIN MOCKING REDDIT PACKAGE
 import sys
 
@@ -40,15 +41,34 @@ sys.modules['r2.lib.contrib'] = sys.modules['r2.lib'].contrib
 
 #### END MOCK
 
+def _force_unicode(text):
+    if text is None:
+        return u''
+
+    if isinstance(text, unicode):
+        return text
+
+    try:
+        text = unicode(text, 'utf-8')
+    except UnicodeDecodeError:
+        text = unicode(text, 'latin1')
+    except TypeError:
+        text = unicode(text)
+    return text
+
+
 class CSSErrorSet(Exception):
     def __init__(self, errors):
         self.errors = errors
 
     def __str__(self):
-        retstr = "List of syntax and / or validation errors:\n    "
+        retstr = "List of validation errors:\n    "
         retstr += '\n    '.join(
-            ['{0}: {1}'.format(e.__class__.__name__, str(e))
-             for e in self.errors]
+            ['{0}{1}{2}'.format(
+                "[line {0}]".format(e.line) if hasattr(e, 'line') else "",
+                " " + e.message if hasattr(e, 'line') else e.message,
+                " " + e.offending_line if hasattr(e, 'offending_line') else ""
+             ) for e in self.errors]
         )
         return retstr
 
@@ -59,7 +79,9 @@ images = {image.rsplit('.', 1)[0]: os.path.join('./images', image)
           for image in os.listdir('./images')}
           
 with open(os.getenv('cssfile'), 'r') as f:
-    parsed, errors = cssfilter.validate_css(f.read(), images)
+    parsed, errors = cssfilter.validate_css(_force_unicode(f.read()), images)
+    print(parsed)
+    print(errors)
     if errors:
         raise CSSErrorSet(errors)
 
