@@ -1,4 +1,6 @@
+#### BEGIN MOCKING REDDIT PACKAGE
 import sys
+
 try:
     import rcssmin
 except ImportError:
@@ -35,4 +37,29 @@ sys.modules['r2'] = _r2()
 sys.modules['r2.lib'] = sys.modules['r2'].lib
 sys.modules['r2.lib.utils'] = sys.modules['r2.lib'].utils
 sys.modules['r2.lib.contrib'] = sys.modules['r2.lib'].contrib
+
+#### END MOCK
+
+class CSSErrorSet(Exception):
+    def __init__(self, errors):
+        self.errors = errors
+
+    def __str__(self):
+        retstr = "List of syntax and / or validation errors:\n    "
+        retstr += '\n    '.join(
+            ['{0}: {1}'.format(e.__class__.__name__, str(e))
+             for e in self.errors]
+        )
+        return retstr
+
+import cssfilter
+import os
+
+images = {image.rsplit('.', 1)[0]: os.path.join('./images', image)
+          for image in os.listdir('./images')}
+          
+with open(os.getenv('cssfile'), 'r') as f:
+    parsed, errors = cssfilter.validate_css(f.read(), images)
+    if errors:
+        raise CSSErrorSet(errors)
 
