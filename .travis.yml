@@ -1,9 +1,16 @@
 language: python
+sudo: required
+dist: trusty
+virtualenv:
+  system_site_packages: true
 python:
   - "2.7"
+before_install:
+  - "sudo apt-add-repository -y ppa:reddit/ppa"
+  - "sudo apt-get update -q"
+  - "sudo apt-get install python-tinycss2 -y"
 install: 
   - "pip install -r requirements.txt"
-  - "pip install tinycss2"
   - "wget https://raw.githubusercontent.com/reddit/reddit/master/r2/r2/lib/cssfilter.py"
   - "wget https://raw.githubusercontent.com/reddit/reddit/master/r2/r2/lib/contrib/rcssmin.py"
 # command to run tests

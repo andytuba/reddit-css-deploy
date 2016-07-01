@@ -12,6 +12,8 @@ class _i18n(object):
     def N_(arg):
         return str(arg)
 
+    _ = N_
+
 class _pylons(object):
     i18n = _i18n()
 
@@ -38,6 +40,7 @@ sys.modules['r2'] = _r2()
 sys.modules['r2.lib'] = sys.modules['r2'].lib
 sys.modules['r2.lib.utils'] = sys.modules['r2.lib'].utils
 sys.modules['r2.lib.contrib'] = sys.modules['r2.lib'].contrib
+from pylons.i18n import _
 
 #### END MOCK
 
@@ -56,21 +59,34 @@ def _force_unicode(text):
         text = unicode(text)
     return text
 
+class CSSError(object):
+    def __init__(self, validation_error):
+        self.error = validation_error
+
+    @property
+    def message(self):
+        return _(self.error.message_key) % self.error.message_params
 
 class CSSErrorSet(Exception):
     def __init__(self, errors):
         self.errors = errors
+        self.__format_errors()
 
     def __str__(self):
         retstr = "List of validation errors:\n    "
-        retstr += '\n    '.join(
-            ['{0}{1}{2}'.format(
-                "[line {0}]".format(e.line) if hasattr(e, 'line') else "",
-                " " + e.message if hasattr(e, 'line') else e.message,
-                " " + e.offending_line if hasattr(e, 'offending_line') else ""
-             ) for e in self.errors]
-        )
-        return retstr
+        return retstr + '\n    '.join(self.errors)
+
+    def __format_errors(self):
+        stringed_errors = []
+        for e in self.errors:
+            error = []
+            if hasattr(e.error, 'line'):
+                error.append('[line {0}]'.format(e.error.line))
+            error.append(e.message)
+            if hasattr(e.error, "offending_line"):
+                error.append(e.error.offending_line)
+                stringed_errors.append(" ".join(error))
+        self.errors = stringed_errors
 
 import cssfilter
 import os
@@ -78,10 +94,9 @@ import os
 images = {image.rsplit('.', 1)[0]: os.path.join('./images', image)
           for image in os.listdir('./images')}
           
-with open(os.getenv('cssfile'), 'r') as f:
+with open(os.getenv('cssfile', 'stylesheet.css'), 'r') as f:
     parsed, errors = cssfilter.validate_css(_force_unicode(f.read()), images)
-    print(parsed)
-    print(errors)
+    errors = [CSSError(error) for error in errors]
     if errors:
         raise CSSErrorSet(errors)
 
