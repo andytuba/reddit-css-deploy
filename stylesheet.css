@@ -1,5 +1,5 @@
 .morelink {
-    background:url(%%buttons%%) 0 -40px!important;
+    background:url('images/buttons.png') 0 -40px!important;
     height:40px;
     line-height:40px;
     border:none;
@@ -9,10 +9,10 @@
     font-weight:400;
 }
 .morelink:hover{
-    background:url(%%buttons%%) 0 -80px!important;
+    background:url("images/buttons.png") 0 -80px!important;
 }
 .morelink:active{
-    background:url(%%buttons%%) 0 -120px!important;
+    background:url('images/buttons.png') 0 -120px!important;
 }
 .morelink a:hover{
     color:#e2ce00;
