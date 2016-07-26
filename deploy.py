@@ -80,7 +80,8 @@ def deploy(force=ast.literal_eval(os.getenv('force_deploy', 'False'))):
         deploy_images(image_diff, r, force)
     if update_css or force:
         with open(stylesheet, 'r') as css:
-            r.set_stylesheet(os.getenv('subreddit'), css.read())
+            for subreddit in os.getenv('subreddit').split('+'):
+                r.set_stylesheet(subreddit, css.read())
 
 if __name__ == '__main__':
     deploy()
