@@ -44,7 +44,7 @@ def deploy_images(diff, reddit, force=False):
     for image, exists in diff.items():
         data = dict(deploy_data)
         with open(image) as image_file:
-            if exists:
+            if exists:'
                 data['image_path'] = image
             else:
                 data['name'] = os.path.splitext(
@@ -79,9 +79,10 @@ def deploy(force=ast.literal_eval(os.getenv('force_deploy', 'False'))):
     if update_images or force:
         deploy_images(image_diff, r, force)
     if update_css or force:
-        with open(stylesheet, 'r') as css:
+        with open(stylesheet, 'r') as stylesheet_file:
+            css = stylesheet_file.read()
             for subreddit in os.getenv('subreddit').split('+'):
-                r.set_stylesheet(subreddit, css.read())
+                r.set_stylesheet(subreddit, css)
 
 if __name__ == '__main__':
     deploy()
