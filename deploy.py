@@ -44,7 +44,7 @@ def deploy_images(diff, reddit, force=False):
     for image, exists in diff.items():
         data = dict(deploy_data)
         with open(image) as image_file:
-            if exists:'
+            if exists:
                 data['image_path'] = image
             else:
                 data['name'] = os.path.splitext(
